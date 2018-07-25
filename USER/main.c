@@ -7,6 +7,8 @@
 #include "ledctl.h"
 #include <stdio.h>
 
+static char MYDEVICEID[32] = "000000000000000f";
+
 static int make_json_data(char *oustr)
 {
 	
@@ -18,9 +20,17 @@ static int make_json_data(char *oustr)
 	pJsonRoot = cJSON_CreateObject();
 	if(NULL == pJsonRoot){return -1;}
 	
-	cJSON_AddNumberToObject(pJsonRoot, "version", 1);
-	cJSON_AddStringToObject(pJsonRoot, "ipaddress", "202.99.96.68");
-	cJSON_AddStringToObject(pJsonRoot, "ipport", "3000");
+
+	cJSON_AddNumberToObject(pJsonRoot, "VERSION", 1);
+	//AT+CIMI
+	cJSON_AddStringToObject(pJsonRoot, "DEVID", MYDEVICEID);
+	cJSON_AddStringToObject(pJsonRoot, "FIRST", "BC26 BRD");
+	cJSON_AddStringToObject(pJsonRoot, "NAME", "bc26");
+	cJSON_AddStringToObject(pJsonRoot, "NUM", "100");
+	cJSON_AddStringToObject(pJsonRoot, "ONLINE", "online");
+	cJSON_AddStringToObject(pJsonRoot, "TIME", "2018.8");
+	cJSON_AddStringToObject(pJsonRoot, "STATUS", "ON");
+	cJSON_AddStringToObject(pJsonRoot, "BODY", "HELLO BC26 BRD");
 	
 	p = cJSON_Print(pJsonRoot);
 	
@@ -105,22 +115,58 @@ int main(void)
 		uart_data_write("AT\r\n", strlen("AT\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
+		/*
+		 * 打开PSM
+		 */
 		memset(recvbuf,0x0,RECV_BUF_LEN);
 		uart_data_write("AT+CPSMS=1\r\n", strlen("AT+CPSMS=1\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
+		/*
+		 * 关闭回显
+		 */
 		memset(recvbuf,0x0,RECV_BUF_LEN);
 		uart_data_write("ATE0\r\n", strlen("ATE0\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 
-		
+		/*
+		 * 获取信号值
+		 */
 		memset(recvbuf,0x0,RECV_BUF_LEN);
 		uart_data_write("AT+CSQ\r\n", strlen("AT+CSQ\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
-		//AT+QSOCON=0,6666,"47.93.103.232"
+		/*
+		 * 获取设备ID
+		 */
+		memset(recvbuf,0x0,RECV_BUF_LEN);
+		uart_data_write("AT+CIMI\r\n", strlen("AT+CIMI\r\n"), 0);
+		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
-		//AT+QSOC=1,2,1
+		{//读取设备ID
+			char * __tmp = strstr(recvbuf,"OK");
+			if (__tmp > 0)
+			{
+				__tmp -= 19;
+				int i=0;
+				for(i=0;i<15;i++)
+				{
+					MYDEVICEID[i] = __tmp[i];
+				}
+				MYDEVICEID[15] = 'f'; 
+				MYDEVICEID[16] = 0x0;
+				printf("IMSI : [%sr\n",MYDEVICEID);
+				//MYDEVICEID
+			}
+		}
+		
+		memset(recvbuf,0x0,RECV_BUF_LEN);
+		uart_data_write("AT+CGSN\r\n", strlen("AT+CGSN\r\n"), 0);
+		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		
+		/*
+		 * 创建Socket
+		 */
 		memset(recvbuf,0x0,RECV_BUF_LEN);
 		uart_data_write("AT+QSOC=1,2,1\r\n", strlen("AT+QSOC=1,2,1\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
@@ -134,10 +180,6 @@ int main(void)
 		memset(recvbuf,0x0,RECV_BUF_LEN);
 		uart_data_write(atbuf,strlen(atbuf),0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
-		
-//		memset(recvbuf,0x0,RECV_BUF_LEN);
-//		uart_data_write("AT+QSOSEND=0,5,3132333435\r\n", strlen("AT+QSOSEND=0,5,3132333435\r\n"), 0);
-//		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
 		memset(recvbuf,0x0,RECV_BUF_LEN);
 		uart_data_write("AT+QSODIS=0\r\n", strlen("AT+QSODIS=0\r\n"), 0);
@@ -160,7 +202,10 @@ int main(void)
 	
 	printf("Sys_Enter_Standby CurrentTim %d\r\n",RTC_GetCounter());
 	
-	RTC_SetAlarm(RTC_GetCounter() +  60);
+	/*
+	 * 设置1小时之后再次启动并进入PSM模式
+	 */
+	RTC_SetAlarm(RTC_GetCounter() +  3600);
 	utimer_sleep(2000);
 	//进入休眠
 	
