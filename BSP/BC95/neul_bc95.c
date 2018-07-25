@@ -492,7 +492,7 @@ param       :  None
 return      :  0 connected , !0 not connect
 Revision    : 
 =============================================================== */
-int neul_bc95_get_netstat(void)
+int neul_bc26_get_netstat(void)
 {
     char *cmd = "AT+CGATT?\r";
     char *str = NULL;
@@ -511,7 +511,7 @@ int neul_bc95_get_netstat(void)
         //read bc95 read set return value info failed
         return -1;
     }
-    str = strstr(neul_dev.rbuf,"CGATT:1");
+    str = strstr(neul_dev.rbuf,"CGATT: 1");
     if (!str)
     {
         return -1;

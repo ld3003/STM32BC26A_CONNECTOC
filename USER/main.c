@@ -5,48 +5,7 @@
 #include "BASE64/cbase64.h"
 #include "JSON/cjson.h"
 #include "ledctl.h"
-
-static int make_send_str(char *outstr , int outbuf_len ,char * instr)
-{
-	int i=0;
-	extern int encode_base64(unsigned char * input , int inlen , char * output);
-	extern int decode_base64(const char * input , char * output , int * outlen);
-	extern int conv_hex_2_string(unsigned char *data , int datalen , char *str);
-	
-	memset(outstr,0x0,outbuf_len);
-	
-	char *b64buf = malloc(512);
-	char *hexbuf = malloc(512);
-	
-	//数据包长度为256
-	if (strlen(instr) <= 256)
-	{
-		for(i=strlen(instr);i<256;i++)
-		{
-			instr[i] = ' ';
-			//
-		}
-		instr[256] = 0x0;
-	}else{
-		instr[256] = 0x0;
-	}
-	
-	//encode_base64(inbuf,inbuf_len,b64buf);
-	//printf("BASE64: %s \r\n",b64buf);
-	snprintf((char *)outstr,outbuf_len,"AT+NMGS=%d,",257);
-	conv_hex_2_string((unsigned char*)instr,strlen(instr),hexbuf);
-	//printf("HEX BUF : %s ",hexbuf);
-	
-	strcat((char*)outstr,"00");
-	strcat((char*)outstr,hexbuf);
-	strcat((char*)outstr,"\r\n");
-	
-	free(b64buf);
-	free(hexbuf);
-	
-	
-	return strlen(outstr);
-}
+#include <stdio.h>
 
 static int make_json_data(char *oustr)
 {
@@ -80,6 +39,19 @@ static int make_json_data(char *oustr)
 	return 0;
 }
 
+static int make_send_data_str(char *outstr , unsigned char *data , int length)
+{
+	//AT+QSOSEND=0,5,3132333435\r\n
+	char *tmp = malloc(1024);
+	conv_hex_2_string((unsigned char*)data,length,tmp);
+	sprintf(outstr,"AT+QSOSEND=0,%d,%s\r\n",length,tmp);
+	free(tmp);
+	printf("SEND : %s \r\n",outstr);
+	return 0;
+}
+
+
+
 /*******************************************************************************
 * Function Name  : main
 * Description    : Main program
@@ -109,35 +81,10 @@ int main(void)
 	
 	LED_NETWORK_REGISTER_STATUS;
 	
-	while(1)
-	{
-		#define RECV_BUF_LEN 1024
-		char *recvbuf = malloc(RECV_BUF_LEN);
-		char *atbuf = malloc(1024);
-		char *jsonbuf = malloc(512);
-		
-		modem_poweron();
-		utimer_sleep(500);
-		modem_poweroff();
-		
-		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT\r\n", strlen("AT\r\n"), 0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
-		
-		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT+CSQ\r\n", strlen("AT+CSQ\r\n"), 0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
-		
-		
-		/*
-		释放内存
-		*/
-		free(recvbuf);
-		free(atbuf);
-		free(jsonbuf);
-	}
+	modem_poweron();
 	
-	while(neul_bc95_get_netstat()<0){};										//等待连接上网络
+	
+	while(neul_bc26_get_netstat()<0){};										//等待连接上网络
 	
 	{
 		
@@ -149,6 +96,8 @@ int main(void)
 		char *atbuf = malloc(1024);
 		char *jsonbuf = malloc(512);
 		
+		
+		
 		/*
 		 * 发送AT指令
 		 */
@@ -157,24 +106,49 @@ int main(void)
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
 		memset(recvbuf,0x0,RECV_BUF_LEN);
+		uart_data_write("AT+CPSMS=1\r\n", strlen("AT+CPSMS=1\r\n"), 0);
+		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		
+		memset(recvbuf,0x0,RECV_BUF_LEN);
 		uart_data_write("ATE0\r\n", strlen("ATE0\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+
 		
 		memset(recvbuf,0x0,RECV_BUF_LEN);
 		uart_data_write("AT+CSQ\r\n", strlen("AT+CSQ\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
+		//AT+QSOCON=0,6666,"47.93.103.232"
+		
+		//AT+QSOC=1,2,1
 		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT+NCDP=180.101.147.115\r\n", strlen("AT+NCDP=180.101.147.115\r\n"), 0);
+		uart_data_write("AT+QSOC=1,2,1\r\n", strlen("AT+QSOC=1,2,1\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
 		memset(recvbuf,0x0,RECV_BUF_LEN);
-		
+		uart_data_write("AT+QSOCON=0,39002,\"47.93.103.232\"\r\n", strlen("AT+QSOCON=0,39002,\"47.93.103.232\"\r\n"), 0);
+		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
 		make_json_data(jsonbuf);
-		make_send_str(atbuf,1024,jsonbuf);
-		uart_data_write(atbuf, strlen(atbuf), 0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 5000);
+		make_send_data_str(atbuf,(unsigned char*)jsonbuf,strlen(jsonbuf));
+		memset(recvbuf,0x0,RECV_BUF_LEN);
+		uart_data_write(atbuf,strlen(atbuf),0);
+		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		
+//		memset(recvbuf,0x0,RECV_BUF_LEN);
+//		uart_data_write("AT+QSOSEND=0,5,3132333435\r\n", strlen("AT+QSOSEND=0,5,3132333435\r\n"), 0);
+//		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		
+		memset(recvbuf,0x0,RECV_BUF_LEN);
+		uart_data_write("AT+QSODIS=0\r\n", strlen("AT+QSODIS=0\r\n"), 0);
+		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		
+		memset(recvbuf,0x0,RECV_BUF_LEN);
+		uart_data_write("AT+QSOCL=0\r\n", strlen("AT+QSOCL=0\r\n"), 0);
+		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		
+		
+
 		
 		/*
 		释放内存
@@ -187,8 +161,10 @@ int main(void)
 	printf("Sys_Enter_Standby CurrentTim %d\r\n",RTC_GetCounter());
 	
 	RTC_SetAlarm(RTC_GetCounter() +  60);
-	utimer_sleep(100);
+	utimer_sleep(2000);
 	//进入休眠
+	
+	led0_off();
 	Sys_Enter_Standby();
 
 	return 0;

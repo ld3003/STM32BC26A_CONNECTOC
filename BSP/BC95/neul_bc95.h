@@ -43,7 +43,7 @@ int neul_bc95_hw_detect(void);
 int neul_bc95_set_imei(const char *imei, int len);
 int neul_bc95_set_band(int band);
 int neul_bc95_active_network(void);
-int neul_bc95_get_netstat(void);
+int neul_bc26_get_netstat(void);
 int neul_bc95_query_ip(void);
 int neul_bc95_reboot(void);
 int neul_bc95_set_cdpserver(const char *ipaddr);
