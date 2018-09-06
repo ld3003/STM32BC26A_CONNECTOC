@@ -565,19 +565,9 @@
               <FilePath>..\CORE\task.c</FilePath>
             </File>
             <File>
-              <FileName>mainloop.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\mainloop.c</FilePath>
-            </File>
-            <File>
               <FileName>common.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CORE\common.c</FilePath>
-            </File>
-            <File>
-              <FileName>at.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\at.c</FilePath>
             </File>
             <File>
               <FileName>mem.c</FileName>
@@ -585,24 +575,9 @@
               <FilePath>..\CORE\mem.c</FilePath>
             </File>
             <File>
-              <FileName>modem.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\modem.c</FilePath>
-            </File>
-            <File>
-              <FileName>udp_proto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\udp_proto.c</FilePath>
-            </File>
-            <File>
               <FileName>serialport.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CORE\serialport.c</FilePath>
-            </File>
-            <File>
-              <FileName>testpoint.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\testpoint.c</FilePath>
             </File>
             <File>
               <FileName>config.c</FileName>
@@ -650,29 +625,9 @@
               <FilePath>..\BSP\RTC_Time.c</FilePath>
             </File>
             <File>
-              <FileName>dcmi_ov2640.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\dcmi_ov2640.c</FilePath>
-            </File>
-            <File>
-              <FileName>IOI2C.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\IOI2C.c</FilePath>
-            </File>
-            <File>
-              <FileName>SCCB.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\SCCB.c</FilePath>
-            </File>
-            <File>
               <FileName>standby.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BSP\standby.c</FilePath>
-            </File>
-            <File>
-              <FileName>mma845x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\mma845x.c</FilePath>
             </File>
             <File>
               <FileName>bkpreg.c</FileName>
@@ -1265,19 +1220,9 @@
               <FilePath>..\CORE\task.c</FilePath>
             </File>
             <File>
-              <FileName>mainloop.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\mainloop.c</FilePath>
-            </File>
-            <File>
               <FileName>common.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CORE\common.c</FilePath>
-            </File>
-            <File>
-              <FileName>at.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\at.c</FilePath>
             </File>
             <File>
               <FileName>mem.c</FileName>
@@ -1285,24 +1230,9 @@
               <FilePath>..\CORE\mem.c</FilePath>
             </File>
             <File>
-              <FileName>modem.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\modem.c</FilePath>
-            </File>
-            <File>
-              <FileName>udp_proto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\udp_proto.c</FilePath>
-            </File>
-            <File>
               <FileName>serialport.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\CORE\serialport.c</FilePath>
-            </File>
-            <File>
-              <FileName>testpoint.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\CORE\testpoint.c</FilePath>
             </File>
             <File>
               <FileName>config.c</FileName>
@@ -1350,29 +1280,9 @@
               <FilePath>..\BSP\RTC_Time.c</FilePath>
             </File>
             <File>
-              <FileName>dcmi_ov2640.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\dcmi_ov2640.c</FilePath>
-            </File>
-            <File>
-              <FileName>IOI2C.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\IOI2C.c</FilePath>
-            </File>
-            <File>
-              <FileName>SCCB.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\SCCB.c</FilePath>
-            </File>
-            <File>
               <FileName>standby.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BSP\standby.c</FilePath>
-            </File>
-            <File>
-              <FileName>mma845x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\mma845x.c</FilePath>
             </File>
             <File>
               <FileName>bkpreg.c</FileName>

@@ -16,7 +16,7 @@ static int make_json_data(char *oustr)
 	
 	char * p = 0;
 	cJSON * pJsonRoot = NULL;
-	char tmpstr[32];
+	char tmpstr[128];
  
 
 	pJsonRoot = cJSON_CreateObject();
@@ -32,7 +32,8 @@ static int make_json_data(char *oustr)
 	cJSON_AddStringToObject(pJsonRoot, "ONLINE", "online");
 	cJSON_AddStringToObject(pJsonRoot, "TIME", "2018.8");
 	cJSON_AddStringToObject(pJsonRoot, "STATUS", "ON");
-	cJSON_AddStringToObject(pJsonRoot, "BODY", "Current temperature 26'C");
+	snprintf(tmpstr,32,"Current Battery %d mV",read_vdd_voltage());
+	cJSON_AddStringToObject(pJsonRoot, "BODY", tmpstr );
 	
 	p = cJSON_Print(pJsonRoot);
 	
