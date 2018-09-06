@@ -5,6 +5,8 @@
 #include "BASE64/cbase64.h"
 #include "JSON/cjson.h"
 #include "ledctl.h"
+#include "common.h"
+
 #include <stdio.h>
 
 static char MYDEVICEID[32] = "000000000000000f";
@@ -30,7 +32,7 @@ static int make_json_data(char *oustr)
 	cJSON_AddStringToObject(pJsonRoot, "ONLINE", "online");
 	cJSON_AddStringToObject(pJsonRoot, "TIME", "2018.8");
 	cJSON_AddStringToObject(pJsonRoot, "STATUS", "ON");
-	cJSON_AddStringToObject(pJsonRoot, "BODY", "HELLO BC26 BRD");
+	cJSON_AddStringToObject(pJsonRoot, "BODY", "Current temperature 26'C");
 	
 	p = cJSON_Print(pJsonRoot);
 	
@@ -75,6 +77,7 @@ int main(void)
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE);
+	
 	init_led();
 	SysTick_Config(SystemCoreClock / 100);
 	
@@ -137,32 +140,19 @@ int main(void)
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
 		/*
-		 * 获取设备ID
+		 * 获取设备ID IMEI
 		 */
+		
 		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT+CIMI\r\n", strlen("AT+CIMI\r\n"), 0);
+		uart_data_write("AT+CGSN=1\r\n", strlen("AT+CGSN=1\r\n"), 0);
 		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
-		{//读取设备ID
-			char * __tmp = strstr(recvbuf,"OK");
-			if (__tmp > 0)
-			{
-				__tmp -= 19;
-				int i=0;
-				for(i=0;i<15;i++)
-				{
-					MYDEVICEID[i] = __tmp[i];
-				}
-				MYDEVICEID[15] = 'f'; 
-				MYDEVICEID[16] = 0x0;
-				printf("IMSI : [%sr\n",MYDEVICEID);
-				//MYDEVICEID
-			}
+		if (strstr(recvbuf,"+CGSN:"))
+		{
+			MYDEVICEID[15]=0;
+			memcpy(MYDEVICEID,recvbuf+9,15);
+			printf("IMEI: %s\r\n",MYDEVICEID);
 		}
-		
-		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT+CGSN\r\n", strlen("AT+CGSN\r\n"), 0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 		
 		/*
 		 * 创建Socket
@@ -206,10 +196,9 @@ int main(void)
 	 * 设置1小时之后再次启动并进入PSM模式
 	 */
 	RTC_SetAlarm(RTC_GetCounter() +  3600);
-	utimer_sleep(2000);
+
 	//进入休眠
-	
-	led0_off();
+	utimer_sleep(2000);
 	Sys_Enter_Standby();
 
 	return 0;

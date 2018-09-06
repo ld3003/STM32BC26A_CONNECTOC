@@ -694,6 +694,11 @@
               <FileType>1</FileType>
               <FilePath>..\BSP\BC95\neul_bc95.c</FilePath>
             </File>
+            <File>
+              <FileName>eum_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\eum_uart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1388,6 +1393,11 @@
               <FileName>neul_bc95.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BSP\BC95\neul_bc95.c</FilePath>
+            </File>
+            <File>
+              <FileName>eum_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\BSP\eum_uart.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -40,6 +40,12 @@ void Sys_Enter_Standby(void)
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 	GPIO_Init(GPIOF, &GPIO_InitStructure);
 	
+	
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	
 //	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA,DISABLE);
 //	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB,DISABLE);
 //	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC,DISABLE);
@@ -51,6 +57,10 @@ void Sys_Enter_Standby(void)
 	GPIO_ResetBits(GPIOC,GPIO_Pin_All);
 	GPIO_ResetBits(GPIOD,GPIO_Pin_All);
 	GPIO_ResetBits(GPIOF,GPIO_Pin_All);
+	
+	GPIO_ResetBits(GPIOA,GPIO_Pin_15);
+	
+	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,DISABLE);
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);	//使能PWR外设时钟
 	PWR_WakeUpPinCmd(ENABLE);  //使能唤醒管脚功能
