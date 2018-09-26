@@ -43,6 +43,16 @@
 #define CHECK_USB_GPIO				GPIOB
 #define CHECK_USB_PIN					GPIO_Pin_9
 
+#define V50_RCC_TYPE		RCC_APB2PeriphClockCmd
+#define V50_RCC				RCC_APB2Periph_GPIOC
+#define V50_GPIO				GPIOC
+#define V50_PIN				GPIO_Pin_15
+
+#define V33_RCC_TYPE		RCC_APB2PeriphClockCmd
+#define V33_RCC					RCC_APB2Periph_GPIOC
+#define V33_GPIO				GPIOC
+#define V33_PIN					GPIO_Pin_14
+
 void gpio_all_ain(void);
 
 void init_uart1(void);
@@ -67,6 +77,8 @@ void led0_fanzhuan(void);
 void usben_on(void);
 void usben_off(void);
 
+void vdd_5v_out(unsigned char on);
+void vdd_3v3_out(unsigned char on);
 
 void led_ctrl(unsigned char index , unsigned char status);
 

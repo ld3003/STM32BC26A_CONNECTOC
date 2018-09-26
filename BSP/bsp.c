@@ -250,6 +250,45 @@ void usben_off(void)
 	//GPIO_ResetBits(LED0_GPIO,LED0_PIN);
 }
 
+void vdd_5v_out(unsigned char on)
+{
+	
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+  V50_RCC_TYPE( V50_RCC , ENABLE); 						 
+  /**
+  *  LED1 -> PF6 , LED2 -> PF7 , LED3 -> PF8 , LED4 -> PF9
+  */					 
+  GPIO_InitStructure.GPIO_Pin =  V50_PIN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 
+  GPIO_Init(V50_GPIO, &GPIO_InitStructure);
+	
+	if(!on)
+		GPIO_SetBits(V50_GPIO,V50_PIN);
+	else
+		GPIO_ResetBits(V50_GPIO,V50_PIN);
+	
+}
+void vdd_3v3_out(unsigned char on)
+{
+		GPIO_InitTypeDef GPIO_InitStructure;
+
+  V33_RCC_TYPE( V33_RCC , ENABLE); 						 
+  /**
+  *  LED1 -> PF6 , LED2 -> PF7 , LED3 -> PF8 , LED4 -> PF9
+  */					 
+  GPIO_InitStructure.GPIO_Pin =  V33_PIN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 
+  GPIO_Init(V33_GPIO, &GPIO_InitStructure);
+	
+	if(!on)
+		GPIO_SetBits(V33_GPIO,V33_PIN);
+	else
+		GPIO_ResetBits(V33_GPIO,V33_PIN);
+}
+
 
 void bc26_powerpin(unsigned char status)
 {

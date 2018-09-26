@@ -60,8 +60,7 @@ static int push_data_func(unsigned char * push_data , int push_length)
 	int ret1 = -1;
 	int length;
 	int recvlen;
-	
-	
+
 	
 	char *sbuffer; //存储二进制裸数据
 	char *hexbuffer;
@@ -126,6 +125,9 @@ int main(void)
 	LED_NETWORK_REGISTER_STATUS;
 	
 	modem_poweron();
+	
+	vdd_5v_out(1);
+	vdd_3v3_out(1);
 	
 	
 	while(neul_bc26_get_netstat()<0){};										//等待连接上网络
