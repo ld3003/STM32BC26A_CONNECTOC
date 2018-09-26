@@ -32,7 +32,7 @@ static int make_json_data(char *oustr)
 	cJSON_AddStringToObject(pJsonRoot, "ONLINE", "online");
 	cJSON_AddStringToObject(pJsonRoot, "TIME", "2018.8");
 	cJSON_AddStringToObject(pJsonRoot, "STATUS", "ON");
-	snprintf(tmpstr,32,"Current Battery %d mV",read_vdd_voltage());
+	snprintf(tmpstr,64,"Current Battery %d mV",read_vdd_voltage());
 	cJSON_AddStringToObject(pJsonRoot, "BODY", tmpstr );
 	
 	p = cJSON_Print(pJsonRoot);
@@ -52,17 +52,47 @@ static int make_json_data(char *oustr)
 	return 0;
 }
 
-static int make_send_data_str(char *outstr , unsigned char *data , int length)
+static int push_data_func(unsigned char * push_data , int push_length)
 {
-	//AT+QSOSEND=0,5,3132333435\r\n
-	char *tmp = malloc(1024);
-	conv_hex_2_string((unsigned char*)data,length,tmp);
-	sprintf(outstr,"AT+QSOSEND=0,%d,%s\r\n",length,tmp);
-	free(tmp);
-	printf("SEND : %s \r\n",outstr);
-	return 0;
-}
+	
+	int i = 0;
+	int ret;
+	int ret1 = -1;
+	int length;
+	int recvlen;
+	
+	
+	
+	char *sbuffer; //存储二进制裸数据
+	char *hexbuffer;
+	
+	sbuffer = malloc(1024 + 32);
+	hexbuffer = malloc(1024 + 32);
+	
+	conv_hex_2_string((unsigned char*)push_data,push_length,(char*)hexbuffer);
 
+	sprintf((char*)sbuffer,"AT+QLWDATASEND=19,0,0,512,");
+	strcat((char*)sbuffer,(char*)hexbuffer);
+	
+	if(push_length < 512)
+	{
+		for(i=0;i<(512 - push_length);i++)
+		{
+			strcat(sbuffer,"00");
+		}
+	}
+	strcat(sbuffer,",0x0000\r\n");
+	
+	printf("SEND TO BC26 STR: %s ]\r\n",sbuffer);
+	
+	uart_data_write(sbuffer, strlen(sbuffer), 0);
+	
+	free(sbuffer);
+	free(hexbuffer);
+	
+	return ret;
+
+}
 
 
 /*******************************************************************************
@@ -75,7 +105,7 @@ static int make_send_data_str(char *outstr , unsigned char *data , int length)
 *******************************************************************************/
 int main(void)
 {
-	
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH,(0x8000000+4));
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE);
 	
@@ -150,7 +180,8 @@ int main(void)
 		
 		if (strstr(recvbuf,"+CGSN:"))
 		{
-			MYDEVICEID[15]=0;
+			MYDEVICEID[15]='f';
+			MYDEVICEID[16]=0;
 			memcpy(MYDEVICEID,recvbuf+9,15);
 			printf("IMEI: %s\r\n",MYDEVICEID);
 		}
@@ -161,7 +192,8 @@ int main(void)
 		{
 			char *tmpstr;
 			tmpstr = (char*)malloc(128);
-			snprintf(tmpstr,128,"AT+QLWCONF=\"%s\"\r\n","AT+QLWSERV=180.101.147.115,5683\r\n");
+			snprintf(tmpstr,128,"%s","AT+QLWSERV=180.101.147.115,5683\r\n");
+			memset(recvbuf,0x0,RECV_BUF_LEN);
 			uart_data_write(tmpstr,strlen(tmpstr),0);
 			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 			free(tmpstr);
@@ -171,6 +203,7 @@ int main(void)
 			char *tmpstr;
 			tmpstr = (char*)malloc(128);
 			snprintf(tmpstr,128,"AT+QLWCONF=\"%s\"\r\n",MYDEVICEID);
+			memset(recvbuf,0x0,RECV_BUF_LEN);
 			uart_data_write(tmpstr,strlen(tmpstr),0);
 			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 			free(tmpstr);
@@ -181,6 +214,7 @@ int main(void)
 			char *tmpstr;
 			tmpstr = (char*)malloc(128);
 			snprintf(tmpstr,128,"%s","AT+QLWCONF?\r\n");
+			memset(recvbuf,0x0,RECV_BUF_LEN);
 			uart_data_write(tmpstr,strlen(tmpstr),0);
 			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 			free(tmpstr);
@@ -190,6 +224,7 @@ int main(void)
 			char *tmpstr;
 			tmpstr = (char*)malloc(128);
 			snprintf(tmpstr,128,"%s","AT+QLWADDOBJ=19,0,1,\"0\"\r\n");
+			memset(recvbuf,0x0,RECV_BUF_LEN);
 			uart_data_write(tmpstr,strlen(tmpstr),0);
 			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 			free(tmpstr);
@@ -199,6 +234,7 @@ int main(void)
 			char *tmpstr;
 			tmpstr = (char*)malloc(128);
 			snprintf(tmpstr,128,"%s","AT+QLWOPEN=0\r\n");
+			memset(recvbuf,0x0,RECV_BUF_LEN);
 			uart_data_write(tmpstr,strlen(tmpstr),0);
 			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 			free(tmpstr);
@@ -207,15 +243,30 @@ int main(void)
 		{
 			char *tmpstr;
 			tmpstr = (char*)malloc(128);
-			snprintf(tmpstr,128,"%s","AT+QLWCFG=”dataformat”,1,1\r\n");
+			snprintf(tmpstr,128,"%s","AT+QLWCFG=\"dataformat\",1,1\r\n");
+			memset(recvbuf,0x0,RECV_BUF_LEN);
 			uart_data_write(tmpstr,strlen(tmpstr),0);
 			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
 			free(tmpstr);
 		}
 		
+		{
+			char *tmp = malloc(512);
+			make_json_data(tmp);
+			memset(recvbuf,0x0,RECV_BUF_LEN);
+			push_data_func((unsigned char*)tmp,strlen(tmp));
+			
+			for(;;)
+			{
+				uart_data_read(recvbuf, RECV_BUF_LEN, 0, 2000);
+			}
+			free(tmp);
+		}
 		
 		printf("连接建立完毕，开始与电信平台交互数据，waiting 4 second................\r\n");
 		utimer_sleep(4000);
+		
+		
 		
 		
 		
