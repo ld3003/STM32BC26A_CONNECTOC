@@ -156,32 +156,68 @@ int main(void)
 		}
 		
 		/*
-		 * 创建Socket
+		 * 链接电信云服务器
 		 */
-		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT+QSOC=1,2,1\r\n", strlen("AT+QSOC=1,2,1\r\n"), 0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		{
+			char *tmpstr;
+			tmpstr = (char*)malloc(128);
+			snprintf(tmpstr,128,"AT+QLWCONF=\"%s\"\r\n","AT+QLWSERV=180.101.147.115,5683\r\n");
+			uart_data_write(tmpstr,strlen(tmpstr),0);
+			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+			free(tmpstr);
+		}
 		
-		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT+QSOCON=0,39002,\"47.93.103.232\"\r\n", strlen("AT+QSOCON=0,39002,\"47.93.103.232\"\r\n"), 0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		{
+			char *tmpstr;
+			tmpstr = (char*)malloc(128);
+			snprintf(tmpstr,128,"AT+QLWCONF=\"%s\"\r\n",MYDEVICEID);
+			uart_data_write(tmpstr,strlen(tmpstr),0);
+			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+			free(tmpstr);
+		}
 		
-		make_json_data(jsonbuf);
-		make_send_data_str(atbuf,(unsigned char*)jsonbuf,strlen(jsonbuf));
-		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write(atbuf,strlen(atbuf),0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		{
+			//AT+QLWCONF?\r\n
+			char *tmpstr;
+			tmpstr = (char*)malloc(128);
+			snprintf(tmpstr,128,"%s","AT+QLWCONF?\r\n");
+			uart_data_write(tmpstr,strlen(tmpstr),0);
+			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+			free(tmpstr);
+		}
 		
-		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT+QSODIS=0\r\n", strlen("AT+QSODIS=0\r\n"), 0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		{
+			char *tmpstr;
+			tmpstr = (char*)malloc(128);
+			snprintf(tmpstr,128,"%s","AT+QLWADDOBJ=19,0,1,\"0\"\r\n");
+			uart_data_write(tmpstr,strlen(tmpstr),0);
+			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+			free(tmpstr);
+		}
 		
-		memset(recvbuf,0x0,RECV_BUF_LEN);
-		uart_data_write("AT+QSOCL=0\r\n", strlen("AT+QSOCL=0\r\n"), 0);
-		uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+		{
+			char *tmpstr;
+			tmpstr = (char*)malloc(128);
+			snprintf(tmpstr,128,"%s","AT+QLWOPEN=0\r\n");
+			uart_data_write(tmpstr,strlen(tmpstr),0);
+			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+			free(tmpstr);
+		}
+		
+		{
+			char *tmpstr;
+			tmpstr = (char*)malloc(128);
+			snprintf(tmpstr,128,"%s","AT+QLWCFG=”dataformat”,1,1\r\n");
+			uart_data_write(tmpstr,strlen(tmpstr),0);
+			uart_data_read(recvbuf, RECV_BUF_LEN, 0, 200);
+			free(tmpstr);
+		}
 		
 		
-
+		printf("连接建立完毕，开始与电信平台交互数据，waiting 4 second................\r\n");
+		utimer_sleep(4000);
+		
+		
 		
 		/*
 		释放内存
